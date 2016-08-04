@@ -157,7 +157,7 @@ foreach(sfile ${NEOVIM_SOURCES}
   add_custom_command(
     OUTPUT "${gf1}" "${gf2}"
     COMMAND ${CMAKE_C_COMPILER} ${sfile} ${PREPROC_OUTPUT} ${gen_cflags} ${C_FLAGS_ARRAY}
-    COMMAND "${LUA_PRG}" "${HEADER_GENERATOR}" "${sfile}" "${gf1}" "${gf2}" "${gf3}"
+    COMMAND "env" "LUA_CPATH=${LUA_CPATH}" "${LUA_PRG}" "${HEADER_GENERATOR}" "${sfile}" "${gf1}" "${gf2}" "${gf3}"
     DEPENDS "${HEADER_GENERATOR}" "${sfile}"
     )
   list(APPEND NEOVIM_GENERATED_SOURCES "${gf1}")
@@ -181,7 +181,7 @@ add_custom_command(OUTPUT ${GENERATED_UNICODE_TABLES}
 )
 
 add_custom_command(OUTPUT ${MSGPACK_DISPATCH}
-  COMMAND ${LUA_PRG} ${DISPATCH_GENERATOR} ${API_HEADERS} ${MSGPACK_DISPATCH}
+  COMMAND "env" "LUA_CPATH=${LUA_CPATH}" ${LUA_PRG} ${DISPATCH_GENERATOR} ${API_HEADERS} ${MSGPACK_DISPATCH}
   DEPENDS
     ${API_HEADERS}
     ${MSGPACK_RPC_HEADERS}

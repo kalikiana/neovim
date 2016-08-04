@@ -6,7 +6,7 @@
 function(check_lua_module LUA_PRG_PATH MODULE RESULT_VAR)
   execute_process(COMMAND ${LUA_PRG_PATH} -e "require('${MODULE}')"
     RESULT_VARIABLE module_missing
-    ERROR_QUIET)
+    )
   if(module_missing)
     message(STATUS
       "[${LUA_PRG_PATH}] The '${MODULE}' lua package is required for building Neovim")

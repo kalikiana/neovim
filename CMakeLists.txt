@@ -365,6 +365,11 @@ foreach(CFGNAME ${CMAKE_CONFIGURATION_TYPES})
   set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${CFGNAME} ${CMAKE_BINARY_DIR}/lib)
 endforeach()
 
+option(LUA_CPATH "Lua module path" "")
+if(NOT LUA_CPATH)
+    set(LUA_CPATH "${PC_MSGPACK_PREFIX}usr/lib/x86_64-linux-gnu/lua/5.1/?.so")
+endif()
+set(ENV{LUA_CPATH} ${LUA_CPATH})
 # Find Lua interpreter
 include(LuaHelpers)
 set(LUA_DEPENDENCIES lpeg mpack bit)

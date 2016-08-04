@@ -1,0 +1,134 @@
+name: neovim-kalikiana
+version: "0.1.4"
+summary: Vim-fork focused on extensibility and agility.
+description: |
+ Neovim is a project that seeks to aggressively refactor Vim in order to:
+
+ Simplify maintenance and encourage contributions
+ Split the work between multiple developers
+ Enable the implementation of new/modern user interfaces without any modifications to the core source
+ Improve extensibility with a new plugin architecture
+ For lots more details, see the wiki!
+confinement: strict
+# TODO: Compile via lxd
+# TODO: Support optional --devmode features?
+
+apps:
+    neovim-kalikiana:
+        command: wrap nvim
+        plugs: [home, network, network-bind, x11]
+# TODO: Pending lp:#1583259 to replace snap.wrapper
+# environment:
+#     HOME: /home/$USER
+#     VIM: $SNAP/share/nvim/runtime
+
+parts:
+    mpack:
+        source: https://github.com/tarruda/libmpack.git
+        source-subdir: binding/lua
+        plugin: make
+        make-parameters: [PREFIX=/usr, USE_SYSTEM_LUA=yes]
+        build-packages:
+            - libtool-bin
+            - autoconf
+            - automake
+            - g++
+            - pkg-config
+            - liblua5.1-0-dev
+    msgpack:
+        source: https://github.com/msgpack/msgpack-c.git
+        source-branch: cpp-1.0
+        plugin: cmake
+        configflags: [-DCMAKE_INSTALL_PREFIX=/]
+        build-packages:
+            - libtool-bin
+            - autoconf
+            - automake
+            - cmake
+            - g++
+            - pkg-config
+            - doxygen
+        snap:
+            - -include
+            - -lib/pkgconfig
+            - -lib/*.a
+    libvterm:
+        source: https://github.com/neovim/libvterm.git
+        plugin: make
+        make-parameters: [PREFIX=/usr]
+        build-packages:
+            - libtool-bin
+            - autoconf
+            - automake
+            - g++
+            - pkg-config
+        snap:
+            - -usr/bin
+            - -usr/include
+            - -usr/lib/pkgconfig
+    lpeg:
+        plugin: nil
+        stage-packages:
+            - lua-lpeg
+        snap:
+            - usr/lib/*
+            - -usr/lib/gcc
+    neovim:
+        source: .
+        plugin: cmake
+        configflags: [-DCMAKE_BUILD_TYPE=MinSizeRel, -DCMAKE_C_FLAGS_MINSIZEREL=-Os -s]
+        build-packages:
+            - g++
+  # FIXME: Localization doesn't work
+  #         - intltool
+            - libjemalloc-dev
+            - pkg-config
+            - libuv1-dev
+            - libluajit-5.1-dev
+            - libunibilium-dev
+            - libtermkey-dev
+            - luajit
+        snap:
+            - bin
+            - share/nvim
+  #         - share/locale
+            - -share/man
+        after: [mpack, msgpack, libvterm, lpeg]
+    tools:
+        plugin: nil
+        stage-packages:
+          # - coreutils
+  # TODO: bzr
+  #         - bzr
+  # TODO: git
+  #         - git
+            # X11 clipboard integration
+            - xsel
+            # Needed by netrw
+            - curl
+          # - ftp
+          # - rsync
+        snap:
+          # - usr/bin/bzr
+            - usr/bin/curl
+            - usr/lib/x86_64-linux-gnu/*sasl2*
+            - usr/lib/x86_64-linux-gnu/lib*.so.*
+  #         - usr/bin/git
+  #         - usr/lib/git-core
+            - usr/bin/xsel
+  # TODO: Python
+  # python3-plugin:
+  #     plugin: python3
+  #     python-packages: [neovim]
+  #     snap:
+          # - usr/bin/*
+          # - usr/lib/python3*
+          # - usr/lib/x86_64-linux-gnu/*.so*
+          # - usr/share/python3/*
+  #         - usr/lib/python3/dist-packages/neovim*
+  #         - usr/lib/python3/dist-packages/msgpack*
+  #         - usr/lib/python3/dist-packages/greenlet*
+    environment:
+        plugin: copy
+        files:
+            snap.wrapper: bin/wrap

@@ -1,0 +1,19 @@
+#!/bin/sh
+# export TEXTDOMAINDIR=$SNAP/share/locale/
+# export VIMRUNTIME=$SNAP/share/nvim/runtime
+export VIM=$SNAP/share/nvim/runtime
+export HOME=/home/$USER
+# Confined snaps can't read . dirs even with the "home" interface
+export XDG_DATA_HOME=$SNAP_USER_DATA/data
+export XDG_CACHE_HOME=$SNAP_USER_DATA/cache
+# --devmode: export XDG_CONFIG_HOME=$HOME/.config
+export XDG_CONFIG_HOME=$SNAP_USER_COMMON/config
+mkdir -p $XDG_CONFIG_HOME/bash
+export HISTFILE=$XDG_CONFIG_HOME/bash/history
+mkdir -p $XDG_CONFIG_HOME/git
+export GIT_CONFIG_NOSYSTEM=1
+export GIT_CONFIG=$XDG_CONFIG_HOME/git/config
+export GIT_EXEC_PATH=$SNAP/usr/lib/git-core
+export PATH=$GIT_EXEC_PATH:$PATH
+
+exec $@
