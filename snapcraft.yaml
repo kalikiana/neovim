@@ -12,6 +12,7 @@ description: |
 confinement: strict
 # TODO: Compile via lxd
 # TODO: Support optional --devmode features?
+# TODO: Use content snap(s) for compilers and interpreters
 
 apps:
     neovim-kalikiana:
@@ -32,7 +33,7 @@ parts:
             - libtool-bin
             - autoconf
             - automake
-            - g++
+            - gcc
             - pkg-config
             - liblua5.1-0-dev
     msgpack:
@@ -47,7 +48,6 @@ parts:
             - cmake
             - g++
             - pkg-config
-            - doxygen
         snap:
             - -include
             - -lib/pkgconfig
@@ -60,7 +60,7 @@ parts:
             - libtool-bin
             - autoconf
             - automake
-            - g++
+            - gcc
             - pkg-config
         snap:
             - -usr/bin
@@ -78,9 +78,7 @@ parts:
         plugin: cmake
         configflags: [-DCMAKE_BUILD_TYPE=MinSizeRel, -DCMAKE_C_FLAGS_MINSIZEREL=-Os -s]
         build-packages:
-            - g++
-  # FIXME: Localization doesn't work
-  #         - intltool
+            - gcc
             - libjemalloc-dev
             - pkg-config
             - libuv1-dev
@@ -91,13 +89,30 @@ parts:
         snap:
             - bin
             - share/nvim
-  #         - share/locale
             - -share/man
+  # FIXME: Localization doesn't work
+  #         - share/locale
+  #         - usr/share/i18n
+  #         - usr/share/locale*
         after: [mpack, msgpack, libvterm, lpeg]
+  #     stage-packages:
+  #         - locales
+    ctags:
+        plugin: autotools
+        source: https://github.com/universal-ctags/ctags.git
+        configflags: [--prefix=/usr]
+        build-packages:
+          # - binutils
+          # - libtool-bin
+            - gcc
+          # - pkg-config
+        snap:
+            - usr/bin
+            - usr/libexec
+            - -usr/share
     tools:
         plugin: nil
         stage-packages:
-          # - coreutils
   # TODO: bzr
   #         - bzr
   # TODO: git
@@ -129,6 +144,9 @@ parts:
   #         - usr/lib/python3/dist-packages/msgpack*
   #         - usr/lib/python3/dist-packages/greenlet*
     environment:
-        plugin: copy
-        files:
+        plugin: dump
+        source: .
+        organize:
             snap.wrapper: bin/wrap
+        snap:
+            - bin
